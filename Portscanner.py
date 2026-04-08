@@ -1,13 +1,15 @@
 import nmap
 import sys
+import random
 # This tool is provided for educational purposes only, including network security learning, CTF competitions, and authorized penetration testing.
 # Unauthorized use against any system is strictly prohibited. Users must comply with applicable local laws and regulations.
 # The author assumes no responsibility for any misuse or illegal activity.
 
 class PortScanner:
-    def __init__(self,ip,ports):
+    def __init__(self,ip,ports,speed):
         self.ip = ip.strip()
         self.ports = ports.strip()
+        self.speed = speed.strip()
         self.nm = nmap.PortScanner()
 
     def scan_sS(self):     #need root  SYN
@@ -15,7 +17,7 @@ class PortScanner:
             self.nm.scan(
                 hosts=self.ip,
                 ports=self.ports,
-                arguments='-sS -sV -T4 --open --min-parallelism 1024'
+                arguments=f'-sS -sV -f -T{self.speed} --open --min-parallelism 1024 --data-length {random.randint(8,32)} -Pn'
             )
         except Exception as e:
             print(f'scan failed: {e}')
@@ -27,7 +29,7 @@ class PortScanner:
             self.nm.scan(
                 hosts=self.ip,
                 ports=self.ports,
-                arguments='-sT -sV -T4 --open --min-parallelism 1024'
+                arguments=f'-sT -sV -f -T{self.speed} --open --min-parallelism 1024 --data-length {random.randint(8,32)} -Pn'
             )
         except Exception as e:
             print(f'scan failed: {e}')
@@ -39,7 +41,7 @@ class PortScanner:
             self.nm.scan(
                 hosts=self.ip,
                 ports=self.ports,
-                arguments='-sU -sV -T4 --open'
+                arguments=f'-sU -sV -f -T{self.speed} --open --min-parallelism 1024 --data-length {random.randint(8,32)} -Pn'
             )
         except Exception as e:
             print(f'scan failed: {e}')
@@ -70,12 +72,11 @@ if __name__ == '__main__':
     ip = input('input ip address: ').strip()
     ports = input('input ports: ').strip()
     way = input('input way,like S or T or U : ').strip().upper()
+    speed = input('input scan speed(1~5,1 slowest,5 fastest): ').strip()
 
 
-    scanner = PortScanner(ip,ports)
+    scanner = PortScanner(ip,ports,speed)
 
 
-    func =getattr(scanner,f'scan_s{way}')
-    result = func()
+    result = getattr(scanner,f'scan_s{way}')
     print(result)
-
